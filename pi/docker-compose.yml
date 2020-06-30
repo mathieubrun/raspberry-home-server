@@ -1,0 +1,65 @@
+version: '3.3'
+
+services:
+  syncthing:
+    image: $SYNCTHING_IMAGE
+    container_name: rp_syncthing
+    environment:
+      - "PUID=$SYNCTHING_UID"
+      - "PGID=$SYNCTHING_GID"
+    volumes:
+      - $SYNCTHING_DATA_ROOT:/var/syncthing
+    network_mode: host
+    logging:
+      options:
+        max-size: "$LOG_SIZE"
+        max-file: "$LOG_FILES"
+
+  pihole:
+    image: pihole/pihole:v5.0
+    container_name: rp_pihole
+    restart: unless-stopped
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "80:80/tcp"
+      - "443:443/tcp"
+    environment:
+      - "TZ=Europe/Zurich"
+      - "DNS1=10.0.0.2#5053"
+      - "DNS2=10.0.0.2#5053"
+    volumes:
+      - "$PIHOLE_DATA_ROOT/config/etc-pihole/:/etc/pihole/"
+      - "$PIHOLE_DATA_ROOT/config/etc-dnsmasq.d/:/etc/dnsmasq.d/"
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+    networks:
+      pihole_net:
+        ipv4_address: 10.0.0.3
+    logging:
+      options:
+        max-size: "$LOG_SIZE"
+        max-file: "$LOG_FILES"
+
+  unbound:
+    image: $UNBOUND_IMAGE
+    container_name: rp_unbound
+    restart: unless-stopped
+    volumes:
+      - "./unbound.conf:/opt/unbound/etc/unbound/unbound.conf:ro"
+    networks:
+      pihole_net:
+        ipv4_address: 10.0.0.2
+    logging:
+      options:
+        max-size: "$LOG_SIZE"
+        max-file: "$LOG_FILES"
+
+networks:
+  pihole_net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.0.0.0/29
