@@ -1,0 +1,16 @@
+version: '3.3'
+
+services:
+  syncthing:
+    image: mathieubrun/syncthing:v1.7.1
+    container_name: rp_syncthing
+    environment:
+      - "PUID=$SYNCTHING_UID"
+      - "PGID=$SYNCTHING_GID"
+    volumes:
+      - $SYNCTHING_DATA_ROOT:/var/syncthing
+    network_mode: host
+    logging:
+      options:
+        max-size: "$LOG_SIZE"
+        max-file: "$LOG_FILES"

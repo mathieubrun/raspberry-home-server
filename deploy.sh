@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
-source pi/.env
+set -eux
 
-scp pi/* pi/.env pi@pi-srv1.local:/home/pi/services/
+source services/.env
+
+scp -r services $DEPLOY_TARGET

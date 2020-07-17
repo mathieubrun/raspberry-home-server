@@ -1,5 +1,7 @@
 .data/
 .cache/
+
 src/upstream/
 
 .env
+services/go.sh
