@@ -1,0 +1,22 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+mqtt:
+  discovery: true
+  broker: rp_mosquitto
+  port: 1883
+  birth_message:
+    topic: 'hass/status'
+    payload: 'online'
+  will_message:
+    topic: 'hass/status'
+    payload: 'offline'
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml

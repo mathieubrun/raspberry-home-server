@@ -5,3 +5,5 @@ src/upstream/
 
 .env
 services/go.sh
+
+zigbee2mqtt.yaml
