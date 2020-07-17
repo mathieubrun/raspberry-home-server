@@ -9,17 +9,12 @@ docker buildx create --use --driver docker-container
 
 PLATFORM=("linux/arm/v7")
 
-IMAGE=$0
-TAG=$1
+IMAGE=$1
+TAG=$2
 
-cd $IMAGE
-
-docker buildx build . --pull --progress plain \
+docker buildx build $IMAGE --pull --progress plain \
     ${PLATFORM[@]/#/--platform } \
     ${PLATFORM[@]/#/--cache-from type=local,src=.cache/} \
     --tag $TAG --push
-
-cd -
-
 
 docker buildx rm
