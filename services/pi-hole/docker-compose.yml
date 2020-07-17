@@ -1,22 +1,8 @@
 version: '3.3'
 
 services:
-  syncthing:
-    image: $SYNCTHING_IMAGE
-    container_name: rp_syncthing
-    environment:
-      - "PUID=$SYNCTHING_UID"
-      - "PGID=$SYNCTHING_GID"
-    volumes:
-      - $SYNCTHING_DATA_ROOT:/var/syncthing
-    network_mode: host
-    logging:
-      options:
-        max-size: "$LOG_SIZE"
-        max-file: "$LOG_FILES"
-
   pihole:
-    image: pihole/pihole:v5.0
+    image: pihole/pihole:v5.1.1
     container_name: rp_pihole
     restart: unless-stopped
     ports:
@@ -44,7 +30,7 @@ services:
         max-file: "$LOG_FILES"
 
   unbound:
-    image: $UNBOUND_IMAGE
+    image: mathieubrun/unbound
     container_name: rp_unbound
     restart: unless-stopped
     volumes:
@@ -62,4 +48,4 @@ networks:
     driver: bridge
     ipam:
      config:
-       - subnet: 10.0.0.0/29
+       - subnet: 10.0.0.0/24
