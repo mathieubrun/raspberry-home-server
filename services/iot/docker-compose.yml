@@ -1,0 +1,70 @@
+version: '3.3'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:1.6.10
+    container_name: rp_mosquitto
+    restart: unless-stopped
+    volumes:
+      - "./mosquitto.conf:/mosquitto/config/mosquitto.conf"
+      - "$MOSQUITTO_DATA_ROOT:/mosquitto/data"
+    logging:
+      options:
+        max-size: "$LOG_SIZE"
+        max-file: "$LOG_FILES"
+
+  home_assistant:
+    image: homeassistant/home-assistant:0.112.4
+    container_name: rp_homeassistant
+    restart: unless-stopped
+    ports:
+      - 8123:8123
+    volumes:
+      - "$HOMEASSISTANT_DATA_ROOT:/config"
+      - "./home_assistant.yaml:/config/configuration.yaml"
+      - "/etc/localtime:/etc/localtime:ro"
+    logging:
+      options:
+        max-size: "$LOG_SIZE"
+        max-file: "$LOG_FILES"
+
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt:1.14.1
+    container_name: rp_zigbee2mqtt
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/Amsterdam
+    volumes:
+      - "$ZIGBEE2MQTT_DATA_ROOT:/app/data"
+      - "./zigbee2mqtt.yaml:/app/data/configuration.yaml"
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+    logging:
+      options:
+        max-size: "$LOG_SIZE"
+        max-file: "$LOG_FILES"
+
+  zigbee2mqttAssistant:
+    image: carldebilly/zigbee2mqttassistant:0.3.175
+    container_name: rp_zigbee2mqttAssistant
+    restart: unless-stopped
+    environment:
+      - Z2MA_SETTINGS__MQTTSERVER=rp_mosquitto
+      # - Z2MA_SETTINGS__MQTTUSERNAME={MQTTUSERNAME}
+      # - Z2MA_SETTINGS__MQTTPASSWORD={MQTTPASSWORD}
+      # Set to your TimeZone when using on Linux https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+      # Won't work if you're using the Windows version of the container
+      - TZ=Europe/Copenhagen
+    ports:
+      - 8880:80
+    logging:
+      options:
+        max-size: "$LOG_SIZE"
+        max-file: "$LOG_FILES"
+
+networks:
+  pihole_net:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.0.0.0/24
